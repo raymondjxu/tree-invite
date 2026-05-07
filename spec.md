@@ -1,0 +1,12 @@
+This plugin should:
+- be purely server-sided
+- whitelist users in a tree system
+- at first, nobody is whitelisted. Console, the "root node," is the only whitelisted player.
+- Whitelisted nodes can add more whitelisted nodes (players) through the /invite <PLAYER> [java|bedrock] command. If player is a UUID, it should just whitelist the UUID. If player is a username, assume it's Java unless specified to be Bedrock. If it's Java, look up the UUID using Mojang's API. If it's Bedrock, whitelist the UUID using the format: 00000000-0000-0000-xxxx-xxxxxxxxxxxx where the xxx is the XUID of the Bedrock Gamertag.
+- The user that initially invited a player can revoke an invite using /revokeinvite <PLAYER> [java|bedrock]. If the platform is not specified, try both platforms. If the username is only whitelisted on one platform, revoke it for both platforms. Emit an error to the user if the platform was not specified and the username is whitelisted for both platforms.
+- When an invite is revoked, any users invited by that player are also automatically revoked. I.E., all invited players must trace a valid certified invite chain to the root node.
+- Players can be invited by multiple users. They are considered permitted to play as long as they have at least ONE chain back to root.
+- Information about who invited a player is available to everyone using /inviteinfo <player>. This lists their inviter(s) and everybody they invited. If no player is specify, default to the caller.
+- By default, a player can only invite 4 players a day. This limit resets at 02:00 AM in the server's local time zone. If a player tries to invite more than permitted, they are given an error message that specifies what their ratelimit is and when it will reset. Revoking invites does not reset the ratelimit.
+- A ratelimit can be increased using /setmaxinvites <player> <count>. This permanently increases the player's limit. If set to zero, the player will not be able to send invites. This overrides the global default ratelimit.
+- The global default ratelimit can be set with /setglobalmaxinvites <count>.

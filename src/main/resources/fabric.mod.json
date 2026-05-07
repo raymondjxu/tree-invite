@@ -1,31 +1,31 @@
 {
 	"schemaVersion": 1,
 	"id": "tree-invite",
-	"version": "${version}",
+	"version": "0.1.0",
 	"name": "Tree Invite",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Tree-based invite system for Minecraft servers.",
 	"authors": [
-		"Me!"
+		"AwesomestOwl"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "CC0-1.0",
+	"license": "GPL-3.0",
 	"icon": "assets/tree-invite/icon.png",
-	"environment": "*",
+	"environment": "server",
 	"entrypoints": {
 		"main": [
 			"net.raymondjxu.treevite.TreeInvite"
 		]
 	},
-	"mixins": [
-		"tree-invite.mixins.json"
-	],
 	"depends": {
 		"fabricloader": ">=0.19.2",
 		"minecraft": "~26.1.2",
 		"java": ">=25",
 		"fabric-api": "*"
+	},
+	"suggests": {
+		"fabric-permissions-api-v0": "*"
 	}
 }

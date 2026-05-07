@@ -12,6 +12,10 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
+	mavenCentral()
+	maven {
+		url "https://maven.nucleoid.xyz"
+	}
 }
 
 dependencies {
@@ -22,7 +26,20 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	implementation "org.xerial:sqlite-jdbc:3.46.1.0"
+	include "org.xerial:sqlite-jdbc:3.46.1.0"
+
+	implementation "org.postgresql:postgresql:42.7.3"
+	include "org.postgresql:postgresql:42.7.3"
+
+	testImplementation "org.junit.jupiter:junit-jupiter:5.10.2"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.10.2"
 	
+}
+
+tasks.withType(Test).configureEach {
+	useJUnitPlatform()
 }
 
 processResources {
