@@ -1,10 +1,10 @@
-# Tree Invite
+# Treevite
 
 A server-side Minecraft Fabric mod that implements a tree-based whitelist system for managing player access through an invitation chain.
 
 ## Overview
 
-Tree Invite allows you to control who can join your server through a hierarchical invitation system. Starting with just the console as the root administrator, whitelisted players can invite others, creating a "tree" of authorized players. This provides a flexible, organic way to manage server access without manually adding each player to a whitelist.
+Treevite allows you to control who can join your server through a hierarchical invitation system. Starting with just the console as the root administrator, whitelisted players can invite others, creating a "tree" of authorized players. This provides a flexible, organic way to manage server access without manually adding each player to a whitelist.
 
 **Key Features:**
 - Tree-based whitelist system starting from console as root
@@ -102,7 +102,7 @@ When Fabric Permissions API is available, the following permissions are recogniz
 
 ## Database
 
-Tree Invite uses SQLite for persistent storage by default, but can also use PostgreSQL. All invite relationships and rate limit data are stored automatically.
+Treevite uses SQLite for persistent storage by default, but can also use PostgreSQL. All invite relationships and rate limit data are stored automatically.
 
 ## Support
 

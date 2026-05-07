@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "tree-invite",
 	"version": "0.1.0",
-	"name": "Tree Invite",
+	"name": "Treevite",
 	"description": "Tree-based invite system for Minecraft servers.",
 	"authors": [
 		"AwesomestOwl"
