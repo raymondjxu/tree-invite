@@ -28,14 +28,14 @@ public final class SetGlobalMaxInvitesCommand {
 		InviteTree tree = TreeInvite.getTree();
 		if (tree == null) {
 			Config config = TreeInvite.getConfig();
-			source.sendFailure(Component.literal(config != null ? config.error_systemNotReady : "Invite system is not ready yet"));
+			source.sendFailure(Component.literal(config.error_systemNotReady));
 			return 0;
 		}
 		int count = IntegerArgumentType.getInteger(context, "count");
 		tree.setGlobalMaxInvites(count);
 		TreeInvite.saveTree(source.getServer());
 		Config config = TreeInvite.getConfig();
-		String message = config != null ? Messages.format(config.success_setGlobalMaxInvites, "count", count) : ("Set global max invites to " + count);
+		String message = Messages.format(config.success_setGlobalMaxInvites, "count", count);
 		source.sendSuccess(() -> Component.literal(message), false);
 		return 1;
 	}

@@ -243,6 +243,41 @@ public class InviteTreeStoreTest {
 		assertNull(loaded.getInviteDay());
 	}
 
+	@Test
+	void suspendedSubtreePreservesRoundTrip() throws SQLException {
+		// Arrange: Create ROOT -> ALICE -> BOB, then revoke ROOT -> ALICE
+		setupSchema();
+		UUID aliceId = UUID.fromString("00000000-0000-0000-0000-000000000001");
+		UUID bobId = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
+		InviteTree originalTree = new InviteTree();
+		originalTree.getOrCreateNode(aliceId, "Alice", Platform.JAVA);
+		originalTree.getOrCreateNode(bobId, "Bob", Platform.JAVA);
+		originalTree.addInviteEdge(InviteTree.ROOT_ID, aliceId);
+		originalTree.addInviteEdge(aliceId, bobId);
+
+		// Remove ROOT -> ALICE edge (suspends subtree)
+		originalTree.removeInviteEdge(InviteTree.ROOT_ID, aliceId);
+
+		// Act: Save the tree with suspended nodes
+		saveTreeWithEdges(originalTree);
+		connection.commit();
+
+		// Load the tree back
+		InviteTree loadedTree = new InviteTree();
+		loadedTree.ensureRoot();
+		loadNodesFromDb(loadedTree);
+		loadEdgesFromDb(loadedTree);
+
+		// Assert: Nodes exist but are unreachable
+		assertTrue(loadedTree.hasNode(aliceId));
+		assertTrue(loadedTree.hasNode(bobId));
+		assertFalse(loadedTree.isWhitelisted(aliceId));
+		assertFalse(loadedTree.isWhitelisted(bobId));
+		// Edge from ALICE to BOB should still exist
+		assertTrue(loadedTree.hasInviteEdge(aliceId, bobId));
+	}
+
 	private void setupSchema() throws SQLException {
 		try (var statement = connection.createStatement()) {
 			statement.executeUpdate("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)");
@@ -293,6 +328,61 @@ public class InviteTreeStoreTest {
 				statement.addBatch();
 			}
 			statement.executeBatch();
+		}
+	}
+
+	private void saveTreeWithEdges(InviteTree tree) throws SQLException {
+		saveTree(tree);
+		String edgeSql = "INSERT INTO edges (inviter_uuid, invitee_uuid) VALUES (?, ?)";
+		try (PreparedStatement statement = connection.prepareStatement(edgeSql)) {
+			for (Node node : tree.getNodes()) {
+				for (UUID inviteeId : node.getInvitees()) {
+					statement.setString(1, node.getId().toString());
+					statement.setString(2, inviteeId.toString());
+					statement.addBatch();
+				}
+			}
+			statement.executeBatch();
+		}
+	}
+
+	private void loadNodesFromDb(InviteTree tree) throws SQLException {
+		try (PreparedStatement statement = connection.prepareStatement("SELECT uuid, display_name, platform, max_override, invite_day, invites_used FROM nodes")) {
+			var result = statement.executeQuery();
+			while (result.next()) {
+				String uuidText = result.getString(1);
+				UUID id = UUID.fromString(uuidText);
+				String displayName = result.getString(2);
+				String platformText = result.getString(3);
+				Platform platform = Platform.valueOf(platformText);
+				Node node = new Node(id, displayName, platform);
+				
+				Integer override = null;
+				if (result.getObject(4) != null) {
+					override = result.getInt(4);
+				}
+				node.setMaxInvitesOverride(override);
+				
+				String inviteDay = result.getString(5);
+				if (inviteDay != null && !inviteDay.isBlank()) {
+					node.setInviteDay(LocalDate.parse(inviteDay));
+				}
+				
+				node.setInvitesUsed(result.getInt(6));
+				node.normalize();
+				tree.addNode(node);
+			}
+		}
+	}
+
+	private void loadEdgesFromDb(InviteTree tree) throws SQLException {
+		try (PreparedStatement statement = connection.prepareStatement("SELECT inviter_uuid, invitee_uuid FROM edges")) {
+			var result = statement.executeQuery();
+			while (result.next()) {
+				UUID inviterId = UUID.fromString(result.getString(1));
+				UUID inviteeId = UUID.fromString(result.getString(2));
+				tree.addInviteEdge(inviterId, inviteeId);
+			}
 		}
 	}
 }

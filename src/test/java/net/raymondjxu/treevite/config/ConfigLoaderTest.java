@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -164,15 +163,13 @@ public class ConfigLoaderTest {
 		assertNotNull(config.success_invited);
 		assertNotNull(config.success_alreadyInvited);
 		assertNotNull(config.success_revokedInvite);
-		assertNotNull(config.success_removedUnreachable);
+		assertNotNull(config.info_totalUnreachable);
 		assertNotNull(config.success_setMaxInvites);
 		assertNotNull(config.success_setGlobalMaxInvites);
 		assertNotNull(config.success_inviteInfoHeader);
 		assertNotNull(config.success_invitedBy);
 		assertNotNull(config.success_invitedList);
 
-		assertNotNull(config.disconnect_notWhitelisted);
-		assertNotNull(config.disconnect_noLongerWhitelisted);
 	}
 
 	@Test

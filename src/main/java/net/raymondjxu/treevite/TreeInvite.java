@@ -110,7 +110,7 @@ public class TreeInvite implements ModInitializer {
 
 	public static String getSourceName(CommandSourceStack source) {
 		if (source == null) {
-			return "console";
+			return "(System Root)";
 		}
 		return source.getTextName();
 	}

@@ -26,6 +26,6 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-		"fabric-permissions-api-v0": "*"
+		"fabric-permissions-api-v0": "0.7.0"
 	}
 }

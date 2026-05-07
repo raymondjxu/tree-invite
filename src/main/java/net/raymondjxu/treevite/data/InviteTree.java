@@ -108,30 +108,17 @@ public final class InviteTree {
 		return removed;
 	}
 
-	public Set<UUID> pruneUnreachable() {
+	public Set<UUID> findUnreachable() {
 		Set<UUID> reachable = computeReachable();
-		Set<UUID> removed = new HashSet<>();
+		Set<UUID> unreachable = new HashSet<>();
 
-		nodes.entrySet().removeIf(entry -> {
-			UUID id = entry.getKey();
-			if (isRoot(id)) {
-				return false;
-			}
-			if (!reachable.contains(id)) {
-				removed.add(id);
-				return true;
-			}
-			return false;
-		});
-
-		if (!removed.isEmpty()) {
-			for (Node node : nodes.values()) {
-				node.getInviters().removeIf(removed::contains);
-				node.getInvitees().removeIf(removed::contains);
+		for (UUID id : nodes.keySet()) {
+			if (!isRoot(id) && !reachable.contains(id)) {
+				unreachable.add(id);
 			}
 		}
 
-		return removed;
+		return unreachable;
 	}
 
 	public List<Node> findByDisplayName(String name) {
@@ -194,15 +181,15 @@ public final class InviteTree {
 	public void ensureRoot() {
 		Node root = nodes.get(ROOT_ID);
 		if (root == null) {
-			root = new Node(ROOT_ID, "console", Platform.CONSOLE);
+			root = new Node(ROOT_ID, "(System Root)", Platform.SYSTEM);
 			root.normalize();
 			nodes.put(ROOT_ID, root);
 			return;
 		}
 		root.normalize();
-		root.setPlatform(Platform.CONSOLE);
+		root.setPlatform(Platform.SYSTEM);
 		if (root.getDisplayName() == null || root.getDisplayName().isBlank()) {
-			root.setDisplayName("console");
+			root.setDisplayName("(System Root)");
 		}
 	}
 

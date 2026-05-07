@@ -32,7 +32,7 @@ public class InviteTreeTest {
 	}
 
 	@Test
-	void pruneUnreachableRemovesCascade() {
+	void findUnreachableReportsCascadeWithoutDeleting() {
 		InviteTree tree = new InviteTree();
 		tree.getOrCreateNode(ALICE, "Alice", Platform.JAVA);
 		tree.getOrCreateNode(BOB, "Bob", Platform.JAVA);
@@ -41,11 +41,14 @@ public class InviteTreeTest {
 		tree.addInviteEdge(ALICE, BOB);
 		tree.removeInviteEdge(InviteTree.ROOT_ID, ALICE);
 
-		Set<UUID> removed = tree.pruneUnreachable();
-		assertTrue(removed.contains(ALICE));
-		assertTrue(removed.contains(BOB));
-		assertFalse(tree.hasNode(ALICE));
-		assertFalse(tree.hasNode(BOB));
+		Set<UUID> unreachable = tree.findUnreachable();
+		assertTrue(unreachable.contains(ALICE));
+		assertTrue(unreachable.contains(BOB));
+		// Nodes still exist but are not whitelisted
+		assertTrue(tree.hasNode(ALICE));
+		assertTrue(tree.hasNode(BOB));
+		assertFalse(tree.isWhitelisted(ALICE));
+		assertFalse(tree.isWhitelisted(BOB));
 	}
 
 	@Test
@@ -61,10 +64,45 @@ public class InviteTreeTest {
 		tree.addInviteEdge(CAROL, BOB);
 
 		tree.removeInviteEdge(ALICE, BOB);
-		Set<UUID> removed = tree.pruneUnreachable();
+		Set<UUID> unreachable = tree.findUnreachable();
 
-		assertFalse(removed.contains(BOB));
+		assertFalse(unreachable.contains(BOB));
 		assertTrue(tree.isWhitelisted(BOB));
+	}
+
+	@Test
+	void restoreSubtreeOnReinvite() {
+		InviteTree tree = new InviteTree();
+		tree.getOrCreateNode(ALICE, "Alice", Platform.JAVA);
+		tree.getOrCreateNode(BOB, "Bob", Platform.JAVA);
+
+		// Set up: ROOT -> ALICE -> BOB
+		tree.addInviteEdge(InviteTree.ROOT_ID, ALICE);
+		tree.addInviteEdge(ALICE, BOB);
+		
+		// Verify both are whitelisted
+		assertTrue(tree.isWhitelisted(ALICE));
+		assertTrue(tree.isWhitelisted(BOB));
+
+		// Revoke ROOT -> ALICE (doesn't delete nodes)
+		tree.removeInviteEdge(InviteTree.ROOT_ID, ALICE);
+		Set<UUID> unreachable = tree.findUnreachable();
+		assertTrue(unreachable.contains(ALICE));
+		assertTrue(unreachable.contains(BOB));
+
+		// Verify nodes still exist but are not whitelisted
+		assertTrue(tree.hasNode(ALICE));
+		assertTrue(tree.hasNode(BOB));
+		assertFalse(tree.isWhitelisted(ALICE));
+		assertFalse(tree.isWhitelisted(BOB));
+
+		// Re-invite ALICE (the edge is restored)
+		tree.addInviteEdge(InviteTree.ROOT_ID, ALICE);
+
+		// Verify both are whitelisted again, and the edge is intact
+		assertTrue(tree.isWhitelisted(ALICE));
+		assertTrue(tree.isWhitelisted(BOB));
+		assertTrue(tree.hasInviteEdge(ALICE, BOB));
 	}
 
 	@Test

@@ -14,8 +14,8 @@ public class Config {
 	public String error_inviteLimitReached = "Invite limit reached ({used}/{limit}). Resets at {reset}";
 	public String error_addInviteFailed = "Failed to add invite";
 	public String error_playerNotInTree = "Player is not in the invite tree";
-	public String error_platformAmbiguous = "Player exists on both platforms; specify java or bedrock";
-	public String error_nameAmbiguous = "Player name is ambiguous; specify java or bedrock";
+	public String error_platformAmbiguous = "Player exists on both platforms; specify Java or Bedrock";
+	public String error_nameAmbiguous = "Player name is ambiguous; specify Java or Bedrock";
 	public String error_didNotInvite = "You did not invite that player";
 	public String error_revokeInviteFailed = "Failed to revoke invite";
 	public String error_noInviteInfo = "No invite info available";
@@ -25,12 +25,13 @@ public class Config {
 	public String success_invited = "Invited {player}";
 	public String success_alreadyInvited = "That player is already invited by you";
 	public String success_revokedInvite = "Revoked invite for {player}";
-	public String success_removedUnreachable = "Removed {count} unreachable {entries}";
+	public String info_totalUnreachable = "There are currently {count} unreachable {entries}";
 	public String success_setMaxInvites = "Set max invites for {player} to {count}";
 	public String success_setGlobalMaxInvites = "Set global max invites to {count}";
 	public String success_inviteInfoHeader = "Invite info for {player}";
 	public String success_invitedBy = "Invited by: {list}";
 	public String success_invitedList = "Invited: {list}";
+	public String success_invitesUsed = "Invites Used Today: {used}/{max}";
 
 	// Disconnect messages
 	public String disconnect_noLongerWhitelisted = "You are no longer whitelisted";

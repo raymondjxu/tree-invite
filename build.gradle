@@ -27,6 +27,8 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
+	implementation 'me.lucko:fabric-permissions-api:0.7.0'
+
 	implementation "org.xerial:sqlite-jdbc:3.46.1.0"
 	include "org.xerial:sqlite-jdbc:3.46.1.0"
 

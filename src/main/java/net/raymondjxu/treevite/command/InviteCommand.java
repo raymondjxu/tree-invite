@@ -3,6 +3,7 @@ package net.raymondjxu.treevite.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -41,14 +42,14 @@ public final class InviteCommand {
 		InviteTree tree = TreeInvite.getTree();
 		if (tree == null) {
 			Config config = TreeInvite.getConfig();
-			source.sendFailure(Component.literal(config != null ? config.error_systemNotReady : "Invite system is not ready yet"));
+			source.sendFailure(Component.literal(config.error_systemNotReady));
 			return 0;
 		}
 		String input = StringArgumentType.getString(context, "player");
 		UUID inviterId = TreeInvite.getSourceUuid(source);
 		if (!tree.isWhitelisted(inviterId)) {
 			Config config = TreeInvite.getConfig();
-			source.sendFailure(Component.literal(config != null ? config.error_notWhitelisted.replace("{source}", source.getTextName()) : "Missing configuration message: error_notWhitelisted"));
+			source.sendFailure(Component.literal(config.error_notWhitelisted.replace("{source}", source.getTextName())));
 			return 0;
 		}
 
@@ -56,7 +57,7 @@ public final class InviteCommand {
 		if (direct != null) {
 			if (platformArg != null) {
 				Config config = TreeInvite.getConfig();
-				source.sendFailure(Component.literal(config != null ? config.error_cannotSpecifyPlatform : "Cannot specify platform given raw UUID"));
+				source.sendFailure(Component.literal(config.error_cannotSpecifyPlatform));
 				return 0;
 			}
 			handleResolvedInvite(source, tree, inviterId, direct, null, Platform.UNKNOWN);
@@ -75,7 +76,7 @@ public final class InviteCommand {
 		})).exceptionally(ex -> {
 			server.execute(() -> {
 				Config config = TreeInvite.getConfig();
-				String message = config != null ? Messages.format(config.error_lookupFailed, "message", ex.getMessage()) : "Lookup failed: " + ex.getMessage();
+				String message = Messages.format(config.error_lookupFailed, "message", ex.getMessage()) + ex.getMessage();
 				source.sendFailure(Component.literal(message));
 			});
 			return null;
@@ -87,14 +88,14 @@ public final class InviteCommand {
 	private static void handleResolvedInvite(CommandSourceStack source, InviteTree tree, UUID inviterId, UUID inviteeId, String displayName, Platform platform) {
 		if (inviterId.equals(inviteeId)) {
 			Config config = TreeInvite.getConfig();
-			source.sendFailure(Component.literal(config != null ? config.error_cannotInviteSelf : "You cannot invite yourself"));
+			source.sendFailure(Component.literal(config.error_cannotInviteSelf));
 			return;
 		}
 		Node inviter = tree.getOrCreateNode(inviterId, TreeInvite.getSourceName(source), Platform.UNKNOWN);
 		Node invitee = tree.getOrCreateNode(inviteeId, displayName, platform);
 		if (tree.hasInviteEdge(inviter.getId(), invitee.getId())) {
 			Config config = TreeInvite.getConfig();
-			source.sendSuccess(() -> Component.literal(config != null ? config.success_alreadyInvited : "That player is already invited by you"), false);
+			source.sendSuccess(() -> Component.literal(config.success_alreadyInvited).withStyle(ChatFormatting.RED), false);
 			return;
 		}
 
@@ -102,7 +103,7 @@ public final class InviteCommand {
 		if (!limit.isAllowed()) {
 			String reset = limit.getNextReset().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 			Config config = TreeInvite.getConfig();
-			String message = config != null ? Messages.format(config.error_inviteLimitReached, "used", limit.getUsed(), "limit", limit.getLimit(), "reset", reset) : ("Invite limit reached (" + limit.getUsed() + "/" + limit.getLimit() + "). Resets at " + reset);
+			String message = Messages.format(config.error_inviteLimitReached, "used", limit.getUsed(), "limit", limit.getLimit(), "reset", reset);
 			source.sendFailure(Component.literal(message));
 			return;
 		}
@@ -110,15 +111,14 @@ public final class InviteCommand {
 		boolean added = tree.addInviteEdge(inviter.getId(), invitee.getId());
 		if (!added) {
 			Config config = TreeInvite.getConfig();
-			source.sendFailure(Component.literal(config != null ? config.error_addInviteFailed : "Failed to add invite"));
+			source.sendFailure(Component.literal(config.error_addInviteFailed));
 			return;
 		}
 
 		TreeInvite.saveTree(source.getServer());
-		String name = describePlayer(invitee);
 		Config config = TreeInvite.getConfig();
-		String message = config != null ? Messages.format(config.success_invited, "player", name) : ("Invited " + name);
-		source.sendSuccess(() -> Component.literal(message), false);
+		Component message = Messages.formatComponent(config.success_invited, "player", Messages.playerComponent(invitee));
+		source.sendSuccess(() -> message, false);
 	}
 
 	private static UUID parseUuid(String value) {
@@ -127,17 +127,5 @@ public final class InviteCommand {
 		} catch (Exception ex) {
 			return null;
 		}
-	}
-
-	private static String describePlayer(Node node) {
-		if (node == null) {
-			return "<unknown>";
-		}
-		String name = node.getDisplayName();
-		String platform = node.getPlatform() == null ? Platform.UNKNOWN.name() : node.getPlatform().name();
-		if (name == null || name.isBlank()) {
-			return node.getId() + " (" + platform.toLowerCase(Locale.ROOT) + ")";
-		}
-		return name + " (" + platform.toLowerCase(Locale.ROOT) + ")";
 	}
 }

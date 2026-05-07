@@ -4,5 +4,5 @@ public enum Platform {
 	JAVA,
 	BEDROCK,
 	UNKNOWN,
-	CONSOLE
+	SYSTEM
 }

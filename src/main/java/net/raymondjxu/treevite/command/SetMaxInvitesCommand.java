@@ -41,7 +41,7 @@ public final class SetMaxInvitesCommand {
 		InviteTree tree = TreeInvite.getTree();
 		if (tree == null) {
 			Config config = TreeInvite.getConfig();
-			source.sendFailure(Component.literal(config != null ? config.error_systemNotReady : "Invite system is not ready yet"));
+			source.sendFailure(Component.literal(config.error_systemNotReady));
 			return 0;
 		}
 
@@ -51,20 +51,20 @@ public final class SetMaxInvitesCommand {
 		if (direct != null) {
 			if (platformArg != null) {
 				Config config = TreeInvite.getConfig();
-				source.sendFailure(Component.literal(config != null ? config.error_cannotSpecifyPlatform : "Cannot specify platform given raw UUID"));
+				source.sendFailure(Component.literal(config.error_cannotSpecifyPlatform));
 				return 0;
 			}
 			Node node = tree.getNode(direct);
 			if (node == null) {
 				Config config = TreeInvite.getConfig();
-				source.sendFailure(Component.literal(config != null ? config.error_playerNotInTree : "Player is not in the invite tree"));
+				source.sendFailure(Component.literal(config.error_playerNotInTree));
 				return 0;
 			}
 			node.setMaxInvitesOverride(count);
 			TreeInvite.saveTree(source.getServer());
 			Config config = TreeInvite.getConfig();
-			String message = config != null ? Messages.format(config.success_setMaxInvites, "player", describePlayer(node), "count", count) : ("Set max invites for " + describePlayer(node) + " to " + count);
-			source.sendSuccess(() -> Component.literal(message), false);
+			Component message = Messages.formatComponent(config.success_setMaxInvites, "player", Messages.playerComponent(node), "count", Component.literal(String.valueOf(count)));
+			source.sendSuccess(() -> message, false);
 			return 1;
 		}
 
@@ -72,26 +72,26 @@ public final class SetMaxInvitesCommand {
 			Node node = findSingleMatch(tree.findByDisplayName(input), platformArg);
 			if (node == null) {
 				Config config = TreeInvite.getConfig();
-				source.sendFailure(Component.literal(config != null ? config.error_playerNotInTree : "Player is not in the invite tree"));
+				source.sendFailure(Component.literal(config.error_playerNotInTree));
 				return 0;
 			}
 			node.setMaxInvitesOverride(count);
 			TreeInvite.saveTree(source.getServer());
 			Config config = TreeInvite.getConfig();
-			String message = config != null ? Messages.format(config.success_setMaxInvites, "player", describePlayer(node), "count", count) : ("Set max invites for " + describePlayer(node) + " to " + count);
-			source.sendSuccess(() -> Component.literal(message), false);
+			Component message = Messages.formatComponent(config.success_setMaxInvites, "player", Messages.playerComponent(node), "count", Component.literal(String.valueOf(count)));
+			source.sendSuccess(() -> message, false);
 			return 1;
 		}
 
 		List<Node> matches = tree.findByDisplayName(input);
 		if (matches.size() > 1) {
 			Config config = TreeInvite.getConfig();
-			source.sendFailure(Component.literal(config != null ? config.error_nameAmbiguous : "Player name is ambiguous; specify java or bedrock"));
+			source.sendFailure(Component.literal(config.error_nameAmbiguous));
 			return 0;
 		}
 		if (matches.isEmpty()) {
 			Config config = TreeInvite.getConfig();
-			source.sendFailure(Component.literal(config != null ? config.error_playerNotInTree : "Player is not in the invite tree"));
+			source.sendFailure(Component.literal(config.error_playerNotInTree));
 			return 0;
 		}
 
@@ -99,8 +99,8 @@ public final class SetMaxInvitesCommand {
 		node.setMaxInvitesOverride(count);
 		TreeInvite.saveTree(source.getServer());
 		Config config = TreeInvite.getConfig();
-		String message = config != null ? Messages.format(config.success_setMaxInvites, "player", describePlayer(node), "count", count) : ("Set max invites for " + describePlayer(node) + " to " + count);
-		source.sendSuccess(() -> Component.literal(message), false);
+		Component message = Messages.formatComponent(config.success_setMaxInvites, "player", Messages.playerComponent(node), "count", Component.literal(String.valueOf(count)));
+		source.sendSuccess(() -> message, false);
 		return 1;
 	}
 
@@ -129,15 +129,4 @@ public final class SetMaxInvitesCommand {
 		return found;
 	}
 
-	private static String describePlayer(Node node) {
-		if (node == null) {
-			return "<unknown>";
-		}
-		String name = node.getDisplayName();
-		String platform = node.getPlatform() == null ? Platform.UNKNOWN.name() : node.getPlatform().name();
-		if (name == null || name.isBlank()) {
-			return node.getId() + " (" + platform.toLowerCase(Locale.ROOT) + ")";
-		}
-		return name + " (" + platform.toLowerCase(Locale.ROOT) + ")";
-	}
 }

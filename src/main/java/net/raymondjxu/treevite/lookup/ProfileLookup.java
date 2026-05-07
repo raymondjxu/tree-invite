@@ -67,7 +67,7 @@ public final class ProfileLookup {
 			return CompletableFuture.completedFuture(LookupResult.error("Missing player name"));
 		}
 		String encoded = URLEncoder.encode(gamertag, StandardCharsets.UTF_8);
-		String url = "https://api.geysermc.org/v2/xuid/" + encoded;
+		String url = "https://api.geysermc.org/v2/xbox/xuid/" + encoded;
 		HttpRequest request = HttpRequest.newBuilder(URI.create(url))
 				.timeout(Duration.ofSeconds(10))
 				.GET()
@@ -76,20 +76,20 @@ public final class ProfileLookup {
 		return CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofString())
 				.thenApply(response -> {
 					if (response.statusCode() != 200) {
-						return LookupResult.error("Geyser lookup failed (HTTP " + response.statusCode() + ")");
+						return LookupResult.error("Bedrock lookup failed (HTTP " + response.statusCode() + ")");
 					}
 					String body = response.body();
 					JsonObject obj = parseObject(body);
 					if (obj == null) {
-						return LookupResult.error("Geyser lookup failed (invalid response)");
+						return LookupResult.error("Bedrock lookup failed (invalid response)");
 					}
 					String xuid = getAsString(obj, "xuid");
 					if (xuid == null) {
-						return LookupResult.error("Geyser lookup failed (missing XUID)");
+						return LookupResult.error("Bedrock lookup failed (missing XUID)");
 					}
 					UUID uuid = bedrockUuidFromXuid(xuid);
 					if (uuid == null) {
-						return LookupResult.error("Geyser lookup failed (invalid XUID)");
+						return LookupResult.error("Bedrock lookup failed (invalid XUID)");
 					}
 					String displayName = getAsString(obj, "display_name");
 					return LookupResult.success(uuid, displayName == null ? gamertag : displayName, Platform.BEDROCK);

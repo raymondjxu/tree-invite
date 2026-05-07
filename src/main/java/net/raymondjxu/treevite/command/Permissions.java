@@ -2,6 +2,7 @@ package net.raymondjxu.treevite.command;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
 import net.raymondjxu.treevite.TreeInvite;
 import net.raymondjxu.treevite.config.Config;
 
@@ -22,10 +23,9 @@ public final class Permissions {
 		Method method = null;
 		try {
 			Class<?> clazz = Class.forName(PERMISSIONS_CLASS);
-			method = clazz.getMethod("check", CommandSourceStack.class, String.class, int.class);
-		} catch (Exception ex) {
-			method = null;
-		}
+			method = clazz.getMethod("check", Entity.class, String.class, int.class);
+		} catch (Exception _) {
+        }
 		CHECK_METHOD = method;
 		if (CHECK_METHOD == null) {
 			warnMissingDependency(null);
@@ -39,17 +39,17 @@ public final class Permissions {
 		if (source == null) {
 			return false;
 		}
+
 		if (CHECK_METHOD == null) {
 			warnMissingDependency(source);
-		}
-		if (CHECK_METHOD != null) {
+		} else if(source.getEntity() != null) {
 			try {
-				Object result = CHECK_METHOD.invoke(null, source, permission, fallbackLevel);
+				Object result = CHECK_METHOD.invoke(null, source.getEntity(), permission, fallbackLevel);
 				if (result instanceof Boolean) {
 					return (Boolean) result;
 				}
-			} catch (Exception ex) {
-				// Fall through to op-level check
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		}
 		Boolean result = tryInvokeLevelCheck(source, "hasPermission", fallbackLevel);
@@ -71,7 +71,7 @@ public final class Permissions {
 	private static void warnMissingDependency(CommandSourceStack source) {
 		if (WARNED_CONSOLE.compareAndSet(false, true)) {
 			Config config = TreeInvite.getConfig();
-			String message = config != null ? config.error_permissionsApiMissing : "Permissions API not present; using operator-level checks. Install fabric-permissions-api to enable permission nodes.";
+			String message = config.error_permissionsApiMissing;
 			TreeInvite.LOGGER.warn(message);
 		}
 		if (source == null) {
@@ -81,14 +81,14 @@ public final class Permissions {
 		if (callerId != null) {
 			if (WARNED_CALLERS.add(callerId)) {
 				Config config = TreeInvite.getConfig();
-				String message = config != null ? config.error_permissionsApiMissing : "Permissions API not present; using operator-level checks. Install fabric-permissions-api to enable permission nodes.";
+				String message = config.error_permissionsApiMissing;
 				source.sendFailure(Component.literal(message));
 			}
 			return;
 		}
 		if (WARNED_CONSOLE_CALLER.compareAndSet(false, true)) {
 			Config config = TreeInvite.getConfig();
-			String message = config != null ? config.error_permissionsApiMissing : "Permissions API not present; using operator-level checks. Install fabric-permissions-api to enable permission nodes.";
+			String message = config.error_permissionsApiMissing;
 			source.sendFailure(Component.literal(message));
 		}
 	}
