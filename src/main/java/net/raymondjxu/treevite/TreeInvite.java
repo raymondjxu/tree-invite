@@ -49,7 +49,7 @@ public class TreeInvite implements ModInitializer {
 
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
 		    if (server.isUsingWhitelist()) {
-				server.setUsingWhitelist();
+				server.setUsingWhitelist(false);
 				LOGGER.warn("Disabled the vanilla whitelist, Treevite manages the whitelist");
 				}
 		});
