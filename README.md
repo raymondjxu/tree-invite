@@ -17,8 +17,8 @@ Treevite allows you to control who can join your server through a hierarchical i
 
 ## Requirements
 
-- Minecraft Server 26.1.2 (or compatible)
-- Fabric Loader 0.19.2 or later
+- Minecraft Server 26.3 (or compatible)
+- Fabric Loader 0.19.5 or later
 - Java 25 or later
 - Fabric API
 
@@ -88,7 +88,7 @@ Console (root)
 
 ## Configuration
 
-Configuration is stored in `config/tree-invite-messages.json` and persists across restarts. The mod manages whitelist data automatically—you don't need to modify the vanilla whitelist.
+Configuration is stored in `config/tree-invite-messages.json` and persists across restarts. The mod manages whitelist data automatically—you don't need to modify the vanilla whitelist. Treevite replaces the vanilla whitelist by setting it to false in server.properties.
 
 ## Permissions
 
