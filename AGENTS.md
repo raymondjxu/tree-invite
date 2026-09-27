@@ -8,7 +8,7 @@ Guidance for AI agents working on the Tree Invite Minecraft mod project.
 
 **Key Stats:**
 - Version: 1.0.0
-- Minecraft: 26.1.2
+- Minecraft: 26.3
 - Java: 25+
 - Databases: SQLite (default) or PostgreSQL
 

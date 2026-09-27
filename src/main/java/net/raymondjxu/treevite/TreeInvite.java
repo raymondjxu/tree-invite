@@ -47,6 +47,13 @@ public class TreeInvite implements ModInitializer {
 			SetGlobalMaxInvitesCommand.register(dispatcher);
 		});
 
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+		    if (server.isUsingWhitelist()) {
+				server.setUsingWhitelist(false);
+				LOGGER.warn("Disabled the vanilla whitelist, Treevite manages the whitelist");
+				}
+		});
+
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
 			// Load config from file or remote URL
 			config = ConfigLoader.load(server.getServerDirectory());
